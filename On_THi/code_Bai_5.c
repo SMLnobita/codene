@@ -1,53 +1,52 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 
-void taoFileSonguyen() {
-    FILE* file = fopen("SONGUYEN.INP", "wb");
+void taoFileNhiPhan(const char* tenFile, int* duLieu, int kichThuoc) {
+    FILE* file = fopen(tenFile, "wb");
     if (file == NULL) {
-        printf("Khong the tao file SONGUYEN.INP.\n");
+        perror("Không thể tạo file");
         return;
     }
 
-    int so[9] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-    fwrite(so, sizeof(int), 9, file);
+    fwrite(duLieu, sizeof(int), kichThuoc, file);
     fclose(file);
 }
 
-void docVaPhanLoaiFile() {
-    FILE* fileInp = fopen("SONGUYEN.INP", "rb");
-    FILE* fileChan = fopen("SOCHAN.OUT", "wb");
-    FILE* fileLe = fopen("SOLE.OUT", "wb");
+void xuLySoNguyen(const char* fileDauVao, const char* fileChan, const char* fileLe) {
+    FILE* fileINP = fopen(fileDauVao, "rb");
+    FILE* fileChanOut = fopen(fileChan, "wb");
+    FILE* fileLeOut = fopen(fileLe, "wb");
 
-    if (fileInp == NULL || fileChan == NULL || fileLe == NULL) {
-        printf("Khong the mo file.\n");
+    if (fileINP == NULL || fileChanOut == NULL || fileLeOut == NULL) {
+        perror("Không thể mở file");
         return;
     }
 
     int so;
-    while (fread(&so, sizeof(int), 1, fileInp) == 1) {
+    while (fread(&so, sizeof(int), 1, fileINP)) {
         if (so % 2 == 0) {
-            fwrite(&so, sizeof(int), 1, fileChan);
+            fwrite(&so, sizeof(int), 1, fileChanOut);
         }
         else {
-            fwrite(&so, sizeof(int), 1, fileLe);
+            fwrite(&so, sizeof(int), 1, fileLeOut);
         }
     }
 
-    fclose(fileInp);
-    fclose(fileChan);
-    fclose(fileLe);
+    fclose(fileINP);
+    fclose(fileChanOut);
+    fclose(fileLeOut);
 }
 
-void inNoiDungFile(const char* tenFile) {
+void inNoiDungFileNhiPhan(const char* tenFile) {
     FILE* file = fopen(tenFile, "rb");
     if (file == NULL) {
-        printf("Khong the mo file %s.\n", tenFile);
+        perror("Khong the mo file");
         return;
     }
 
     int so;
     printf("Noi dung file %s la: ", tenFile);
-    while (fread(&so, sizeof(int), 1, file) == 1) {
+    while (fread(&so, sizeof(int), 1, file)) {
         printf("%d ", so);
     }
     printf("\n");
@@ -56,12 +55,14 @@ void inNoiDungFile(const char* tenFile) {
 }
 
 int main() {
-    taoFileSonguyen();
-    docVaPhanLoaiFile();
+    int duLieu[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
-    inNoiDungFile("SONGUYEN.INP");
-    inNoiDungFile("SOCHAN.OUT");
-    inNoiDungFile("SOLE.OUT");
+    taoFileNhiPhan("SONGUYEN.INP", duLieu, sizeof(duLieu) / sizeof(duLieu[0]));
+    xuLySoNguyen("SONGUYEN.INP", "SOCHAN.OUT", "SOLE.OUT");
+
+    inNoiDungFileNhiPhan("SONGUYEN.INP");
+    inNoiDungFileNhiPhan("SOCHAN.OUT");
+    inNoiDungFileNhiPhan("SOLE.OUT");
 
     return 0;
 }
