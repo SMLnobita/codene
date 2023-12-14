@@ -1,8 +1,8 @@
 import cv2
 import os
 
-behoane_path = r'D:\\Code\\Python\\behoane.png'
-finalne_path = r'D:\\Code\\Python\\finalne.png'
+behoane_path = r'behoane.png'
+finalne_path = r'finalne.png'
 
 img = cv2.imread(behoane_path)
 img_test = cv2.imread(finalne_path)
