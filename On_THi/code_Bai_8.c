@@ -1,78 +1,90 @@
 #define _CRT_SECURE_NO_WARNINGS
-
 #include <stdio.h>
+#include <stdlib.h>
 
-#define MAX_ROWS 100  // Giả sử số hàng tối đa là 100
-#define MAX_COLS 100  // Giả sử số cột tối đa là 100
-
-void nhapMaTran(int maTran[MAX_ROWS][MAX_COLS], int soHang, int soCot) {
-    for (int i = 0; i < soHang; i++) {
-        for (int j = 0; j < soCot; j++) {
+// Ham nhap ma tran
+void enterMatrix(int** matrix, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
             printf("Nhap phan tu [%d][%d]: ", i, j);
-            scanf("%d", &maTran[i][j]);
+            scanf("%d", &matrix[i][j]);
         }
     }
 }
 
-void inMaTran(int maTran[MAX_ROWS][MAX_COLS], int soHang, int soCot) {
-    for (int i = 0; i < soHang; i++) {
-        for (int j = 0; j < soCot; j++) {
-            printf("%d ", maTran[i][j]);
+// Ham in ma tran
+void printMatrix(int** matrix, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            printf("%d ", matrix[i][j]);
         }
         printf("\n");
     }
 }
 
-void sapXepCotGiamDan(int maTran[MAX_ROWS][MAX_COLS], int soHang, int soCot) {
-    for (int j = 0; j < soCot; j++) {
-        for (int i = 0; i < soHang - 1; i++) {
-            for (int k = i + 1; k < soHang; k++) {
-                if (maTran[i][j] < maTran[k][j]) {
-                    int temp = maTran[i][j];
-                    maTran[i][j] = maTran[k][j];
-                    maTran[k][j] = temp;
+// Ham sap xep cac cot theo thu tu giam dan
+void sortColumnsDescending(int** matrix, int rows, int cols) {
+    for (int j = 0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            for (int k = i + 1; k < rows; k++) {
+                if (matrix[i][j] < matrix[k][j]) {
+                    int temp = matrix[i][j];
+                    matrix[i][j] = matrix[k][j];
+                    matrix[k][j] = temp;
                 }
             }
         }
     }
 }
 
-void ghiMaTranVaoFile(int maTran[MAX_ROWS][MAX_COLS], int soHang, int soCot, const char* tenFile) {
-    FILE* file = fopen(tenFile, "w");
+// Ham ghi ma tran vao file
+void writeToFile(int** matrix, int rows, int cols, const char* filename) {
+    FILE* file = fopen(filename, "w");
     if (file == NULL) {
-        perror("Khong the mo file");
-        return;
+        printf("Loi mo file!\n");
+        exit(1);
     }
 
-    for (int i = 0; i < soHang; i++) {
-        for (int j = 0; j < soCot; j++) {
-            fprintf(file, "%d ", maTran[i][j]);
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            fprintf(file, "%d ", matrix[i][j]);
         }
         fprintf(file, "\n");
     }
-
     fclose(file);
 }
 
 int main() {
-    int soHang, soCot;
-    int maTran[MAX_ROWS][MAX_COLS];
+    int n, m;
+    printf("Nhap so hang (n): ");
+    scanf("%d", &n);
+    printf("Nhap so cot (m): ");
+    scanf("%d", &m);
 
-    printf("Nhap so hang: ");
-    scanf("%d", &soHang);
-    printf("Nhap so cot: ");
-    scanf("%d", &soCot);
+    // Cap phat dong cho ma tran
+    int** matrix = (int**)malloc(n * sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        matrix[i] = (int*)malloc(m * sizeof(int));
+    }
 
-    nhapMaTran(maTran, soHang, soCot);
-    printf("Ma tran ban dau:\n");
-    inMaTran(maTran, soHang, soCot);
+    // Nhap va in ma tran
+    enterMatrix(matrix, n, m);
+    printf("Ma tran goc:\n");
+    printMatrix(matrix, n, m);
 
-    sapXepCotGiamDan(maTran, soHang, soCot);
-    printf("Ma tran sau khi sap xep giam dan theo cot:\n");
-    inMaTran(maTran, soHang, soCot);
+    // Sap xep va in ma tran sau khi sap xep
+    sortColumnsDescending(matrix, n, m);
+    printf("Ma tran sau khi sap xep:\n");
+    printMatrix(matrix, n, m);
 
-    ghiMaTranVaoFile(maTran, soHang, soCot, "output8.txt");
-    printf("Noi dung da duoc ghi vao file output8.txt\n");
+    // Ghi ma tran vao file
+    writeToFile(matrix, n, m, "output8.txt");
+
+    // Giai phong bo nho
+    for (int i = 0; i < n; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
 
     return 0;
 }

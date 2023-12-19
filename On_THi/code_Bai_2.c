@@ -1,11 +1,9 @@
-#define  _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
-
-#define MAX_ROWS 100
-#define MAX_COLS 100
+#include <stdlib.h>
 
 // Hàm nhập mảng hai chiều
-void nhapMang(int arr[MAX_ROWS][MAX_COLS], int n, int m) {
+void nhapMang(int** arr, int n, int m) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             printf("Nhap phan tu [%d][%d]: ", i, j);
@@ -15,7 +13,7 @@ void nhapMang(int arr[MAX_ROWS][MAX_COLS], int n, int m) {
 }
 
 // Hàm xuất mảng hai chiều
-void xuatMang(int arr[MAX_ROWS][MAX_COLS], int n, int m) {
+void xuatMang(int** arr, int n, int m) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             printf("%d ", arr[i][j]);
@@ -25,7 +23,7 @@ void xuatMang(int arr[MAX_ROWS][MAX_COLS], int n, int m) {
 }
 
 // Hàm tính tổng các phần tử trên mỗi cột và ghi vào file
-void tinhTongCotVaGhiFile(int arr[MAX_ROWS][MAX_COLS], int n, int m) {
+void tinhTongCotVaGhiFile(int** arr, int n, int m) {
     FILE* file = fopen("output2.txt", "w");
     if (file == NULL) {
         printf("Khong the mo file.\n");
@@ -52,7 +50,11 @@ int main() {
     printf("Nhap so cot m: ");
     scanf("%d", &m);
 
-    int arr[MAX_ROWS][MAX_COLS];
+    // Cấp phát động cho mảng hai chiều
+    int** arr = (int**)malloc(n * sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        arr[i] = (int*)malloc(m * sizeof(int));
+    }
 
     // Nhập và xuất mảng
     nhapMang(arr, n, m);
@@ -61,6 +63,12 @@ int main() {
 
     // Tính tổng từng cột và ghi vào file
     tinhTongCotVaGhiFile(arr, n, m);
+
+    // Giải phóng bộ nhớ
+    for (int i = 0; i < n; i++) {
+        free(arr[i]);
+    }
+    free(arr);
 
     return 0;
 }

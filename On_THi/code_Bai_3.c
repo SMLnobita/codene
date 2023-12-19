@@ -1,11 +1,9 @@
 #define  _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
-
-#define MAX_ROWS 100
-#define MAX_COLS 100
+#include <stdlib.h>
 
 // Hàm nhập mảng hai chiều
-void nhapMang(int arr[MAX_ROWS][MAX_COLS], int n, int m) {
+void nhapMang(int** arr, int n, int m) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             printf("Nhap phan tu [%d][%d]: ", i, j);
@@ -15,7 +13,7 @@ void nhapMang(int arr[MAX_ROWS][MAX_COLS], int n, int m) {
 }
 
 // Hàm xuất mảng hai chiều
-void xuatMang(int arr[MAX_ROWS][MAX_COLS], int n, int m) {
+void xuatMang(int** arr, int n, int m) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             printf("%d ", arr[i][j]);
@@ -25,7 +23,7 @@ void xuatMang(int arr[MAX_ROWS][MAX_COLS], int n, int m) {
 }
 
 // Hàm tính và ghi giá trị trung bình từng hàng vào file
-void tinhTrungBinhHangVaGhiFile(int arr[MAX_ROWS][MAX_COLS], int n, int m) {
+void tinhTrungBinhHangVaGhiFile(int** arr, int n, int m) {
     FILE* file = fopen("output3.txt", "w");
     if (file == NULL) {
         printf("Khong the mo file.\n");
@@ -53,7 +51,11 @@ int main() {
     printf("Nhap so cot m: ");
     scanf("%d", &m);
 
-    int arr[MAX_ROWS][MAX_COLS];
+    // Cấp phát động cho mảng hai chiều
+    int** arr = (int**)malloc(n * sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        arr[i] = (int*)malloc(m * sizeof(int));
+    }
 
     // Nhập và xuất mảng
     nhapMang(arr, n, m);
@@ -62,6 +64,12 @@ int main() {
 
     // Tính trung bình từng hàng và ghi vào file
     tinhTrungBinhHangVaGhiFile(arr, n, m);
+
+    // Giải phóng bộ nhớ
+    for (int i = 0; i < n; i++) {
+        free(arr[i]);
+    }
+    free(arr);
 
     return 0;
 }

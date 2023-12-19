@@ -1,10 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <stdlib.h>
 
-#define MAX_ROWS 100
-#define MAX_COLS 100
-
-void inputMatrix(int matrix[MAX_ROWS][MAX_COLS], int rows, int cols) {
+void inputMatrix(int** matrix, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             printf("Nhap phan tu [%d][%d]: ", i, j);
@@ -13,7 +11,7 @@ void inputMatrix(int matrix[MAX_ROWS][MAX_COLS], int rows, int cols) {
     }
 }
 
-void outputMatrix(int matrix[MAX_ROWS][MAX_COLS], int rows, int cols) {
+void outputMatrix(int** matrix, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             printf("%d ", matrix[i][j]);
@@ -22,7 +20,7 @@ void outputMatrix(int matrix[MAX_ROWS][MAX_COLS], int rows, int cols) {
     }
 }
 
-void sortDescending(int arr[MAX_COLS], int size) {
+void sortDescending(int* arr, int size) {
     for (int i = 0; i < size - 1; i++) {
         for (int j = 0; j < size - i - 1; j++) {
             if (arr[j] < arr[j + 1]) {
@@ -34,7 +32,7 @@ void sortDescending(int arr[MAX_COLS], int size) {
     }
 }
 
-void saveToFile(int matrix[MAX_ROWS][MAX_COLS], int rows, int cols, const char* filename) {
+void saveToFile(int** matrix, int rows, int cols, const char* filename) {
     FILE* file = fopen(filename, "w");
     if (file == NULL) {
         printf("Khong the mo file.\n");
@@ -52,13 +50,19 @@ void saveToFile(int matrix[MAX_ROWS][MAX_COLS], int rows, int cols, const char* 
 }
 
 int main() {
-    int matrix[MAX_ROWS][MAX_COLS];
+    int** matrix;
     int rows, cols;
 
     printf("Nhap so hang: ");
     scanf("%d", &rows);
     printf("Nhap so cot: ");
     scanf("%d", &cols);
+
+    // Cấp phát bộ nhớ
+    matrix = (int**)malloc(rows * sizeof(int*));
+    for (int i = 0; i < rows; i++) {
+        matrix[i] = (int*)malloc(cols * sizeof(int));
+    }
 
     inputMatrix(matrix, rows, cols);
 
@@ -69,6 +73,12 @@ int main() {
     printf("Ma tran sau khi sap xep:\n");
     outputMatrix(matrix, rows, cols);
     saveToFile(matrix, rows, cols, "output17.txt");
+
+    // Giải phóng bộ nhớ
+    for (int i = 0; i < rows; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
 
     return 0;
 }
