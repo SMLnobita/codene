@@ -1,15 +1,18 @@
-//Scipt Locket_GOLD by Nguyen Hoa
+// ========= ID Mapping ========= //
 const mapping = {
   '%E8%BD%A6%E7%A5%A8%E7%A5%A8': ['vip+watch_vip'],
   'Locket': ['Gold']
 };
 
+// ========= Fixed Section ========= //
+// ========= @NguyenHoa ========= //
+
 var ua = $request.headers["User-Agent"] || $request.headers["user-agent"];
 var obj = JSON.parse($response.body);
 
-obj.Attention = "Script by Nguyen Hoa";
+obj.Attention = "Chúc mừng bạn! Vui lòng không bán hoặc chia sẻ cho người khác!";
 
-var subscriptionTemplate = {
+var nguyenhoa = {
   is_sandbox: false,
   ownership_type: "PURCHASED",
   billing_issues_detected_at: null,
@@ -22,26 +25,27 @@ var subscriptionTemplate = {
   store: "app_store"
 };
 
-var entitlementTemplate = {
+var behoa = {
   grace_period_expires_date: null,
   purchase_date: "2024-07-28T01:04:17Z",
   product_identifier: "com.nguyenhoa.premium.yearly",
   expires_date: "2099-12-18T01:04:17Z"
 };
 
-const match = Object.keys(mapping).find(e => ua.includes(e));
+const match = Object.keys(mapping).find(key => ua.includes(key));
+
 if (match) {
-  let [entitlementKey, subscriptionKey] = mapping[match];
-  if (subscriptionKey) {
-    entitlementTemplate.product_identifier = subscriptionKey;
-    obj.subscriber.subscriptions[subscriptionKey] = { ...subscriptionTemplate };
+  let [entitlement, subscription] = mapping[match];
+  if (subscription) {
+    behoa.product_identifier = subscription;
+    obj.subscriber.subscriptions[subscription] = nguyenhoa;
   } else {
-    obj.subscriber.subscriptions["com.nguyenhoa.premium.yearly"] = { ...subscriptionTemplate };
+    obj.subscriber.subscriptions["com.nguyenhoa.premium.yearly"] = nguyenhoa;
   }
-  obj.subscriber.entitlements[entitlementKey] = { ...entitlementTemplate };
+  obj.subscriber.entitlements[entitlement] = behoa;
 } else {
-  obj.subscriber.subscriptions["com.nguyenhoa.premium.yearly"] = { ...subscriptionTemplate };
-  obj.subscriber.entitlements["pro"] = { ...entitlementTemplate };
+  obj.subscriber.subscriptions["com.nguyenhoa.premium.yearly"] = nguyenhoa;
+  obj.subscriber.entitlements.pro = behoa;
 }
 
 $done({ body: JSON.stringify(obj) });
