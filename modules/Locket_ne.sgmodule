@@ -1,0 +1,11 @@
+#!url=
+#!name=Locket_Gold
+#!desc=Crack By NguyenHoa
+
+[Script]
+revenuecat = type=http-response, pattern=^https:\/\/api\.revenuecat\.com\/.+\/(receipts$|subscribers\/[^/]+$), script-path=https://raw.githubusercontent.com/SMLnobita/codene/refs/heads/main/behoajs/locket_behoa.js, requires-body=true, max-size=-1, timeout=60
+
+deleteHeader = type=http-request, pattern=^https:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers), script-path=https://raw.githubusercontent.com/SMLnobita/codene/refs/heads/main/behoajs/deleteHeader.js, timeout=60
+
+[MITM]
+hostname = %APPEND% api.revenuecat.com
