@@ -1,18 +1,17 @@
 #!/bin/bash
 
-# Kiểm tra curl
+# ✅ Kiểm tra và tự động cài curl nếu chưa có
 if ! command -v curl &> /dev/null; then
-    echo "❌ curl chưa được cài. Cài bằng:"
-    echo "   sudo apt install curl"
-    exit 1
+    echo "❗ curl chưa được cài. Đang tiến hành cài đặt..."
+    sudo apt update
+    sudo apt install -y curl
 fi
 
-# Cài libfuse2 nếu chưa có (chỉ lệnh này dùng sudo)
+# ✅ Cài libfuse2 (dùng cho AppImage)
 echo "🔧 Đang cài libfuse2 nếu cần..."
-sudo apt update
 sudo apt install -y libfuse2
 
-# Lấy link bản mới nhất
+# ✅ Tìm bản mới nhất của Arduino IDE
 echo "🌐 Tìm phiên bản mới nhất của Arduino IDE..."
 DOWNLOAD_URL=$(curl -s https://www.arduino.cc/en/software | grep -oP 'https://downloads.arduino.cc/arduino-ide/arduino-ide_[^"]+_Linux_64bit.AppImage' | head -n 1)
 
@@ -26,17 +25,17 @@ VERSION=$(echo "$FILE_NAME" | grep -oP '[0-9]+\.[0-9]+\.[0-9]+')
 
 echo "⬇️  Đang tải Arduino IDE phiên bản $VERSION..."
 
-# Tạo thư mục và tải AppImage
+# ✅ Tải AppImage
 mkdir -p ~/opt/arduino-ide
 cd ~/opt/arduino-ide
 wget "$DOWNLOAD_URL" -O arduino-ide
 chmod +x arduino-ide
 
-# Tải icon vào chung thư mục
+# ✅ Tải icon không chữ về cùng thư mục
 echo "🎨 Tải icon Arduino không chữ..."
 wget https://raw.githubusercontent.com/github/explore/main/topics/arduino/arduino.png -O arduino.png
 
-# Tạo file .desktop trong đúng thư mục người dùng
+# ✅ Tạo shortcut launcher trong menu
 echo "📌 Tạo shortcut trong menu..."
 mkdir -p ~/.local/share/applications/
 cat <<EOF > ~/.local/share/applications/arduino-ide.desktop
@@ -50,7 +49,7 @@ Type=Application
 Categories=Development;IDE;
 EOF
 
-# Cập nhật menu
+# ✅ Cập nhật menu
 echo "🔄 Làm mới menu ứng dụng..."
 update-desktop-database ~/.local/share/applications/
 
