@@ -10,6 +10,5 @@
 Dán dòng sau vào terminal Ubuntu để tự động tải và cài đặt Arduino IDE + icon đẹp:
 
 ```bash
-bash <(curl -sSL https://raw.githubusercontent.com/SMLnobita/codene/main/install_arduino.sh)
-
+wget -qO- https://raw.githubusercontent.com/SMLnobita/codene/main/install_arduino.sh | bash
 
