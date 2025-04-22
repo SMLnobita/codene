@@ -3,7 +3,7 @@ set -e
 
 STAGE3_URL="https://www.dropbox.com/scl/fi/pth68tuk3ozuq1l4nj1zk/stage3-amd64-desktop-systemd-20250420T121009Z.tar.xz?rlkey=nkcgqjqqxyicz736suuhuiamt&st=82ulje4b&dl=1"
 
-echo "[1/9] ⚠️ XOÁ & CHIA lại phân vùng /dev/sda..."
+echo "[1/9] ⚠️ XÓA & chia lại phân vùng /dev/sda..."
 sleep 3
 sfdisk /dev/sda <<EOF
 label: dos
@@ -15,42 +15,41 @@ unit: sectors
 /dev/sda3 : type=83
 EOF
 
-echo "[2/9] Đợi hệ thống cập nhật phân vùng..."
-sleep 3
-partprobe /dev/sda || true
-sleep 2
+sleep 3 && partprobe /dev/sda || true && sleep 2
 
-echo "[3/9] Format phân vùng..."
+echo "[2/9] Format các phân vùng..."
 mkfs.ext4 /dev/sda1
 mkfs.ext4 /dev/sda3
-mkswap /dev/sda2
-swapon /dev/sda2
+mkswap /dev/sda2 && swapon /dev/sda2
 
-echo "[4/9] Mount hệ thống..."
+echo "[3/9] Mount root & boot..."
 mount /dev/sda3 /mnt/gentoo
 mkdir -p /mnt/gentoo/boot
 mount /dev/sda1 /mnt/gentoo/boot
 
-echo "[5/9] Tải stage3 từ Dropbox..."
+echo "[4/9] Tải & giải nén stage3..."
 cd /mnt/gentoo
 wget "$STAGE3_URL" -O stage3.tar.xz
 tar xpvf stage3.tar.xz --xattrs-include='*.*' --numeric-owner
 
-echo "[6/9] Mount hệ thống vào chroot..."
+echo "[5/9] Mount chroot env..."
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 mount -t proc /proc /mnt/gentoo/proc
 mount --rbind /sys /mnt/gentoo/sys
 mount --rbind /dev /mnt/gentoo/dev
 
-echo "[7/9] Tạo script cài GNOME trong chroot..."
+echo "[6/9] Ghi script cài GNOME vào chroot..."
 cat > /mnt/gentoo/root/install-gnome.sh <<'EOF2'
 #!/bin/bash
 set -e
+
 emerge-webrsync
 emerge --sync
+
 eselect profile set $(eselect profile list | grep -m1 'gnome.*systemd' | awk '{print $1}' | tr -d '[]')
 
 CORES=$(nproc)
+echo 'ACCEPT_LICENSE="*"' >> /etc/portage/make.conf
 cat >> /etc/portage/make.conf <<EOF
 CFLAGS="-march=native -O2 -pipe"
 CXXFLAGS="\${CFLAGS}"
@@ -59,6 +58,7 @@ USE="X gnome gtk introspection pulseaudio dbus policykit udev bluetooth systemd 
 EOF
 
 emerge --ask gentoo-sources genkernel grub vim sudo eix
+emerge --ask sys-kernel/linux-firmware
 genkernel all
 
 emerge --ask gnome gdm firefox networkmanager alsa-utils \
@@ -109,11 +109,13 @@ EOF2
 
 chmod +x /mnt/gentoo/root/install-gnome.sh
 
-echo "[8/9] Chroot và cài GNOME..."
+echo "[7/9] Chroot và bắt đầu cài GNOME..."
 chroot /mnt/gentoo /bin/bash /root/install-gnome.sh
 
-echo "[9/9] Thoát & reboot!"
+echo "[8/9] Thoát chroot và dọn..."
 exit
 umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
+
+echo "[9/9] Reboot vào GNOME!"
 reboot
