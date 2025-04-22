@@ -3,6 +3,7 @@
 set -e
 
 function install_arduino() {
+    clear
     echo "🛠️ Đang cài Arduino IDE..."
 
     if ! command -v curl &> /dev/null; then
@@ -47,6 +48,7 @@ EOF
 }
 
 function install_cisco() {
+    clear
     echo "💽 Đang cài Cisco Packet Tracer 8.2.2..."
 
     wget -c https://archive.ubuntu.com/ubuntu/pool/universe/m/mesa/libgl1-mesa-glx_23.0.4-0ubuntu1~22.04.1_amd64.deb -O /tmp/libgl1-mesa-glx.deb
@@ -60,11 +62,13 @@ function install_cisco() {
 }
 
 function uninstall_menu() {
+    clear
     echo "🧹 Gỡ cài đặt phần mềm"
     echo "1️⃣ Gỡ Arduino IDE"
     echo "2️⃣ Gỡ Cisco Packet Tracer"
     echo "0️⃣ Quay lại menu chính"
     read -p "👉 Nhập lựa chọn [0-2]: " opt
+    clear
 
     if [[ "$opt" == "1" ]]; then
         echo "🗑️ Đang gỡ Arduino IDE..."
@@ -97,6 +101,7 @@ while true; do
     echo "3️⃣  Gỡ cài đặt phần mềm"
     echo "0️⃣  Thoát"
     read -p "👉 Nhập lựa chọn của bạn [0-3]: " choice
+    clear
 
     case "$choice" in
         1) install_arduino ;;
