@@ -57,6 +57,11 @@ MAKEOPTS="-j$((CORES + 1))"
 USE="X gnome gtk introspection pulseaudio dbus policykit udev bluetooth systemd pipewire ffmpeg extra vlc -qt5 -kde"
 EOF
 
+# ✅ FIX vòng lặp phụ thuộc giữa ffmpeg ↔ pipewire ↔ libsdl2
+mkdir -p /etc/portage/package.use
+echo "media-video/pipewire -ffmpeg" >> /etc/portage/package.use/pipewire
+echo "media-video/ffmpeg -pipewire" >> /etc/portage/package.use/ffmpeg
+
 emerge --ask gentoo-sources genkernel grub vim sudo eix
 emerge --ask sys-kernel/linux-firmware
 genkernel all
