@@ -1,7 +1,15 @@
 # codene
-Nơi lưu trữ code :))
-#chạy scrpit cài adruino
-nano install_arduino.sh
-chmod +x install_arduino.sh
-bash install_arduino.sh
+
+📦 Nơi lưu trữ các đoạn code vui vẻ của tui 😄  
+(Có thể là script cài, mấy thứ lặt vặt, tiện lợi dành riêng hoặc chia sẻ với bạn bè)
+
+---
+
+## 🚀 Chạy script cài Arduino IDE (mới nhất)
+
+Dán dòng sau vào terminal Ubuntu để tự động tải và cài đặt Arduino IDE + icon đẹp:
+
+```bash
+bash <(curl -sSL https://raw.githubusercontent.com/SMLnobita/codene/main/install_arduino.sh)
+
 
