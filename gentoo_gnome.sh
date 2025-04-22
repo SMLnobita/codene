@@ -1,0 +1,95 @@
+#!/bin/bash
+set -e
+
+echo "[*] BƯỚC 1: Phân vùng ổ đĩa (UEFI - 120GB)..."
+sgdisk --zap-all /dev/sda
+sgdisk -n 1:0:+512M -t 1:ef00 -c 1:"EFI System" /dev/sda
+sgdisk -n 2:0:+4G   -t 2:8200 -c 2:"Swap"        /dev/sda
+sgdisk -n 3:0:0     -t 3:8300 -c 3:"Root"        /dev/sda
+
+mkfs.vfat -F32 /dev/sda1
+mkswap /dev/sda2
+mkfs.ext4 /dev/sda3
+
+mount /dev/sda3 /mnt/gentoo
+mkdir /mnt/gentoo/boot
+mount /dev/sda1 /mnt/gentoo/boot
+swapon /dev/sda2
+
+echo "[*] BƯỚC 2: Tải và giải nén stage3 desktop + systemd..."
+cd /mnt/gentoo
+LATEST_STAGE=$(curl -s https://distfiles.gentoo.org/releases/amd64/autobuilds/latest-stage3-amd64-desktop-systemd.txt | tail -1 | awk '{print $1}')
+wget "https://distfiles.gentoo.org/releases/amd64/autobuilds/${LATEST_STAGE}"
+tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner
+
+cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
+mount -t proc /proc /mnt/gentoo/proc
+mount --rbind /sys /mnt/gentoo/sys
+mount --rbind /dev /mnt/gentoo/dev
+
+echo "[*] BƯỚC 3: Chroot vào hệ thống để cài GNOME..."
+cat <<'EOF' | chroot /mnt/gentoo /bin/bash
+set -e
+
+emerge-webrsync
+emerge --sync
+
+eselect profile set $(eselect profile list | grep -m1 'gnome.*systemd' | awk '{print $1}' | tr -d '[]')
+
+CORES=$(nproc)
+cat >> /etc/portage/make.conf <<EOL
+CFLAGS="-march=native -O2 -pipe"
+CXXFLAGS="\${CFLAGS}"
+MAKEOPTS="-j$((CORES + 1))"
+USE="X gnome gtk introspection pulseaudio dbus policykit udev bluetooth systemd pipewire ffmpeg vlc -qt5 -kde"
+EOL
+
+emerge --ask gentoo-sources genkernel grub vim sudo eix
+genkernel all
+
+emerge --ask gnome gdm firefox networkmanager alsa-utils \
+  gnome-extra/gnome-tweaks gnome-extra/gnome-shell-extensions \
+  gnome-base/gvfs sys-fs/udisks sys-fs/udisks:2 \
+  www-plugins/chrome-gnome-shell gnome-extra/nm-applet \
+  media-video/pipewire media-video/wireplumber \
+  media-plugins/pipewire-alsa media-plugins/pipewire-pulse \
+  sys-apps/flatpak media-sound/pavucontrol \
+  media-fonts/noto media-video/vlc app-misc/neofetch \
+  app-arch/unzip app-arch/p7zip app-arch/unrar \
+  media-gfx/flameshot gnome-extra/gthumb x11-misc/clipman
+
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak install -y flathub com.github.tchx84.Flatseal
+
+echo "gentoo-vm" > /etc/hostname
+cat > /etc/fstab <<FSTAB
+/dev/sda1  /boot     vfat    defaults  0 2
+/dev/sda2  none      swap    sw        0 0
+/dev/sda3  /         ext4    noatime   0 1
+FSTAB
+
+grub-install /dev/sda
+grub-mkconfig -o /boot/grub/grub.cfg
+systemctl enable NetworkManager
+systemctl enable gdm
+
+passwd
+useradd -m -G users,wheel,audio,video,plugdev -s /bin/bash nguyenhoa
+passwd nguyenhoa
+sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+loginctl enable-linger nguyenhoa
+
+emerge --ask x11-drivers/xf86-video-intel \
+  x11-drivers/xf86-video-amdgpu \
+  media-libs/mesa media-libs/libva media-libs/libvdpau media-libs/vulkan-loader \
+  app-emulation/open-vm-tools
+systemctl enable vmtoolsd
+
+emerge --ask media-video/ffmpeg \
+  media-libs/x264 media-libs/x265 \
+  media-libs/libvpx media-libs/libmpeg2 \
+  media-libs/fdk-aac media-sound/flac \
+  media-libs/libvorbis media-sound/lame media-sound/wavpack
+
+echo "[✅] GENTOO GNOME ĐÃ CÀI XONG. REBOOT ĐỂ THƯỞNG THỨC!"
+EOF
