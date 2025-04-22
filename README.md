@@ -5,10 +5,10 @@
 
 ---
 
-## 🚀 Chạy script cài Arduino IDE (mới nhất)
+## 🚀 Chạy script cài Arduino IDE và Cisco
 
-Dán dòng sau vào terminal Ubuntu để tự động tải và cài đặt Arduino IDE + icon đẹp:
+Dán dòng sau vào terminal Ubuntu để tự động tải và cài đặt Arduino IDE + icon đẹp và Cisco:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/SMLnobita/codene/main/install_arduino.sh | bash
+wget -qO- https://raw.githubusercontent.com/SMLnobita/codene/main/install_codene.sh | bash
 
