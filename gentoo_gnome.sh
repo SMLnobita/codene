@@ -54,7 +54,7 @@ cat >> /etc/portage/make.conf <<EOF
 CFLAGS="-march=native -O2 -pipe"
 CXXFLAGS="\${CFLAGS}"
 MAKEOPTS="-j$((CORES + 1))"
-USE="X gnome gtk introspection pulseaudio dbus policykit udev bluetooth systemd pipewire ffmpeg vlc -qt5 -kde"
+USE="X gnome gtk introspection pulseaudio dbus policykit udev bluetooth systemd pipewire ffmpeg extra vlc -qt5 -kde"
 EOF
 
 emerge --ask gentoo-sources genkernel grub vim sudo eix
