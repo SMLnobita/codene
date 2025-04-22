@@ -94,6 +94,7 @@ function uninstall_menu() {
 ### --- MAIN MENU ---
 
 while true; do
+    clear
     echo
     echo "🌟 Trình cài đặt phần mềm 'codene' 🌟"
     echo "1️⃣  Cài đặt Arduino IDE"
@@ -101,7 +102,6 @@ while true; do
     echo "3️⃣  Gỡ cài đặt phần mềm"
     echo "0️⃣  Thoát"
     read -p "👉 Nhập lựa chọn của bạn [0-3]: " choice
-    clear
 
     case "$choice" in
         1) install_arduino ;;
@@ -111,3 +111,4 @@ while true; do
         *) echo "❌ Lựa chọn không hợp lệ!" ;;
     esac
 done
+
