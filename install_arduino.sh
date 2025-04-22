@@ -32,9 +32,9 @@ cd ~/opt/arduino-ide
 wget "$DOWNLOAD_URL" -O arduino-ide
 chmod +x arduino-ide
 
-# Tải icon không chữ
+# Tải icon vào chung thư mục
 echo "🎨 Tải icon Arduino không chữ..."
-wget https://raw.githubusercontent.com/github/explore/main/topics/arduino/arduino.png -O ~/arduino.png
+wget https://raw.githubusercontent.com/github/explore/main/topics/arduino/arduino.png -O arduino.png
 
 # Tạo file .desktop trong đúng thư mục người dùng
 echo "📌 Tạo shortcut trong menu..."
@@ -44,7 +44,7 @@ cat <<EOF > ~/.local/share/applications/arduino-ide.desktop
 Name=Arduino IDE
 Comment=Arduino IDE AppImage
 Exec=/home/$USER/opt/arduino-ide/arduino-ide --no-sandbox
-Icon=/home/$USER/arduino.png
+Icon=/home/$USER/opt/arduino-ide/arduino.png
 Terminal=false
 Type=Application
 Categories=Development;IDE;
