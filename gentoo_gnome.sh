@@ -1,39 +1,53 @@
 #!/bin/bash
 set -e
 
-# ==== LINK STAGE3 TỪ DROPBOX ====
 STAGE3_URL="https://www.dropbox.com/scl/fi/pth68tuk3ozuq1l4nj1zk/stage3-amd64-desktop-systemd-20250420T121009Z.tar.xz?rlkey=nkcgqjqqxyicz736suuhuiamt&st=82ulje4b&dl=1"
 
-echo "[1/8] Format phân vùng..."
+echo "[1/9] ⚠️ XOÁ & CHIA lại phân vùng /dev/sda..."
+sleep 3
+sfdisk /dev/sda <<EOF
+label: dos
+device: /dev/sda
+unit: sectors
+
+/dev/sda1 : start=2048, size=+512M, type=83, bootable
+/dev/sda2 : size=+4G, type=82
+/dev/sda3 : type=83
+EOF
+
+echo "[2/9] Đợi hệ thống cập nhật phân vùng..."
+sleep 3
+partprobe /dev/sda || true
+sleep 2
+
+echo "[3/9] Format phân vùng..."
 mkfs.ext4 /dev/sda1
 mkfs.ext4 /dev/sda3
 mkswap /dev/sda2
 swapon /dev/sda2
 
-echo "[2/8] Mount hệ thống..."
+echo "[4/9] Mount hệ thống..."
 mount /dev/sda3 /mnt/gentoo
 mkdir -p /mnt/gentoo/boot
 mount /dev/sda1 /mnt/gentoo/boot
 
-echo "[3/8] Tải Stage3 từ Dropbox..."
+echo "[5/9] Tải stage3 từ Dropbox..."
 cd /mnt/gentoo
 wget "$STAGE3_URL" -O stage3.tar.xz
 tar xpvf stage3.tar.xz --xattrs-include='*.*' --numeric-owner
 
-echo "[4/8] Mount môi trường chroot..."
+echo "[6/9] Mount hệ thống vào chroot..."
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 mount -t proc /proc /mnt/gentoo/proc
 mount --rbind /sys /mnt/gentoo/sys
 mount --rbind /dev /mnt/gentoo/dev
 
-echo "[5/8] Ghi script cài GNOME vào trong chroot..."
-cat > /mnt/gentoo/root/install-gnome.sh <<'INSIDECHROOT'
+echo "[7/9] Tạo script cài GNOME trong chroot..."
+cat > /mnt/gentoo/root/install-gnome.sh <<'EOF2'
 #!/bin/bash
 set -e
-
 emerge-webrsync
 emerge --sync
-
 eselect profile set $(eselect profile list | grep -m1 'gnome.*systemd' | awk '{print $1}' | tr -d '[]')
 
 CORES=$(nproc)
@@ -91,19 +105,15 @@ emerge --ask media-video/ffmpeg \
   media-libs/fdk-aac media-sound/flac \
   media-libs/libvorbis media-sound/lame \
   media-sound/wavpack
-
-echo "[*] Hoàn tất cài Gentoo GNOME! 🎉"
-INSIDECHROOT
+EOF2
 
 chmod +x /mnt/gentoo/root/install-gnome.sh
 
-echo "[6/8] Chroot và bắt đầu cài GNOME..."
+echo "[8/9] Chroot và cài GNOME..."
 chroot /mnt/gentoo /bin/bash /root/install-gnome.sh
 
-echo "[7/8] Thoát và dọn hệ thống..."
+echo "[9/9] Thoát & reboot!"
 exit
 umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
-
-echo "[8/8] Reboot hệ thống!"
 reboot
