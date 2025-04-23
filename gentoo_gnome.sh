@@ -89,7 +89,15 @@ fi
 
 # Cấu hình đồng hồ hệ thống
 show_progress "Cấu hình đồng hồ hệ thống"
-ntpd -q -g || log_error "Không thể đồng bộ thời gian"
+if command -v ntpd &> /dev/null; then
+    ntpd -q -g || echo "Cảnh báo: Không thể đồng bộ thời gian với ntpd"
+elif command -v chronyd &> /dev/null; then
+    chronyd -q || echo "Cảnh báo: Không thể đồng bộ thời gian với chronyd"
+elif command -v hwclock &> /dev/null; then
+    hwclock --systohc || echo "Cảnh báo: Đồng bộ thời gian bằng hwclock"
+else
+    echo "Cảnh báo: Không tìm thấy công cụ đồng bộ thời gian, bỏ qua bước này"
+fi
 
 # Tạo bảng phân vùng
 show_progress "Tạo bảng phân vùng trên $DISK"
