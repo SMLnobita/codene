@@ -62,11 +62,11 @@ mkdir -p /etc/portage/package.use
 echo "media-video/pipewire -ffmpeg" >> /etc/portage/package.use/pipewire
 echo "media-video/ffmpeg -pipewire" >> /etc/portage/package.use/ffmpeg
 
-emerge --verbose --yes gentoo-sources genkernel grub vim sudo eix
-emerge --verbose --yes sys-kernel/linux-firmware
+yes | emerge --verbose gentoo-sources genkernel grub vim sudo eix
+yes | emerge --verbose sys-kernel/linux-firmware
 genkernel all
 
-emerge --verbose --yes gnome gdm firefox networkmanager alsa-utils \
+yes | emerge --verbose gnome gdm firefox networkmanager alsa-utils \
   gnome-extra/gnome-tweaks gnome-extra/gnome-shell-extensions \
   gnome-base/gvfs sys-fs/udisks sys-fs/udisks:2 \
   www-plugins/chrome-gnome-shell gnome-extra/nm-applet \
@@ -98,13 +98,13 @@ passwd nguyenhoa
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 loginctl enable-linger nguyenhoa
 
-emerge --verbose --yes x11-drivers/xf86-video-intel \
+yes | emerge --verbose x11-drivers/xf86-video-intel \
   x11-drivers/xf86-video-amdgpu \
   media-libs/mesa media-libs/libva media-libs/libvdpau media-libs/vulkan-loader \
   app-emulation/open-vm-tools
 systemctl enable vmtoolsd
 
-emerge --verbose --yes media-video/ffmpeg \
+yes | emerge --verbose media-video/ffmpeg \
   media-libs/x264 media-libs/x265 \
   media-libs/libvpx media-libs/libmpeg2 \
   media-libs/fdk-aac media-sound/flac \
