@@ -47,7 +47,7 @@ emerge-webrsync
 emerge --sync
 
 # ✅ Cài sớm các công cụ build để tránh lỗi SDL2
-yes | emerge --verbose cmake ninja meson pkgconf
+yes | emerge --verbose cmake dev-build/ninja meson pkgconf
 
 eselect profile set $(eselect profile list | grep -m1 'gnome.*systemd' | awk '{print $1}' | tr -d '[]')
 
