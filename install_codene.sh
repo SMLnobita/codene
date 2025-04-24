@@ -14,14 +14,9 @@ function install_arduino() {
 
     sudo apt install -y libfuse2
 
-    DOWNLOAD_URL=$(curl -s https://www.arduino.cc/en/software | grep -oP 'https://downloads.arduino.cc/arduino-ide/arduino-ide_[^"]+_Linux_64bit.AppImage' | head -n 1)
-    if [[ -z "$DOWNLOAD_URL" ]]; then
-        echo "❌ Không lấy được link tải Arduino IDE."
-        exit 1
-    fi
-
+    DOWNLOAD_URL="https://archive.org/download/arduino-ide_2.3.6_Linux_64bit/arduino-ide_2.3.6_Linux_64bit.AppImage"
     FILE_NAME=$(basename "$DOWNLOAD_URL")
-    VERSION=$(echo "$FILE_NAME" | grep -oP '[0-9]+\.[0-9]+\.[0-9]+')
+    VERSION="2.3.6"
 
     echo "⬇️ Đang tải Arduino IDE phiên bản $VERSION..."
     mkdir -p ~/opt/arduino-ide
@@ -57,9 +52,9 @@ function install_cisco() {
     wget -c https://archive.org/download/packet-tracer-822-amd-64-signed_202504/Packet_Tracer822_amd64_signed.deb -O /tmp/packettracer.deb
     sudo dpkg -i /tmp/packettracer.deb || sudo apt -f install -y
 
-    rm -f /tmp/libgl1-mesa-glx.deb #xoá file trong tmp
-    rm -f /tmp/packettracer.deb    #xoá file trong tmp
-	
+    rm -f /tmp/libgl1-mesa-glx.deb # xoá file trong tmp
+    rm -f /tmp/packettracer.deb    # xoá file trong tmp
+
     echo "✅ Đã cài Cisco Packet Tracer 8.2.2!"
     echo "🚀 Gõ 'packettracer' để chạy."
 }
@@ -114,4 +109,3 @@ while true; do
         *) echo "❌ Lựa chọn không hợp lệ!" ;;
     esac
 done
-
