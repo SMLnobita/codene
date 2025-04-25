@@ -53,9 +53,11 @@ function install_cisco() {
 
     wget -c https://archive.ubuntu.com/ubuntu/pool/universe/m/mesa/libgl1-mesa-glx_23.0.4-0ubuntu1~22.04.1_amd64.deb -O /tmp/libgl1-mesa-glx.deb
     sudo dpkg -i /tmp/libgl1-mesa-glx.deb || sudo apt -f install -y
+    rm -f /tmp/libgl1-mesa-glx.deb
 
     wget -c https://archive.org/download/packet-tracer-822-amd-64-signed_202504/Packet_Tracer822_amd64_signed.deb -O /tmp/packettracer.deb
     sudo dpkg -i /tmp/packettracer.deb || sudo apt -f install -y
+    rm -f /tmp/packettracer.deb
 	
     echo "✅ Đã cài Cisco Packet Tracer 8.2.2!"
     echo "🚀 Gõ 'packettracer' để chạy."
