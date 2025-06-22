@@ -11,6 +11,7 @@ Dán dòng sau vào terminal Ubuntu để tự động tải và cài đặt Ard
 
 ```bash
 bash <(wget -qO- https://raw.githubusercontent.com/SMLnobita/codene/main/install_codene.sh)
+```
 ## 🚀 Telegram
 ```bash
-tg://proxy?server=20.205.17.118&port=8443&secret=a1561eabd638a7d6abf2e06a24a6b425
+tg://proxy?server=20.2.234.156&port=8443&secret=7d523fd4595e496221484dade77956ab
