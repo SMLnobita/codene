@@ -15,3 +15,4 @@ bash <(wget -qO- https://raw.githubusercontent.com/SMLnobita/codene/main/install
 ## 🚀 Telegram
 ```bash
 tg://proxy?server=165.154.199.14&port=8443&secret=00258a1c34ab91ffc4509a6b4cb8b5ad
+tg://proxy?server=167.99.69.160&port=8443&secret=df616eeb283456be6fb81aa7c3d30c17
