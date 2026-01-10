@@ -14,10 +14,10 @@ module cau2_b (
     reg        key_prev;
     
     initial begin
-        shift_reg = 24'h085FFF;
+        shift_reg = 24'h067FFF;
         counter   = 26'd0;
         tick      = 1'b0;
-        running   = 1'b1;
+        running   = 1'b0;
         key_sync  = 2'b11;
         key_prev  = 1'b1;
     end
