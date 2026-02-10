@@ -1,0 +1,73 @@
+# These settings were set by the catalyst build script that automatically
+# built this stage.
+# Please consult /usr/share/portage/config/make.conf.example for a more
+# detailed example.
+COMMON_FLAGS="-march=native -O2 -pipe"
+CFLAGS="${COMMON_FLAGS}"
+CXXFLAGS="${COMMON_FLAGS}"
+FCFLAGS="${COMMON_FLAGS}"
+FFLAGS="${COMMON_FLAGS}"
+RUSTFLAGS="${RUSTFLAGS} -C target-cpu=native"
+MAKEOPTS="-j8 -l8"
+ACCEPT_LICENSE="*"
+ACCEPT_KEYWORDS="~amd64"
+# NOTE: This stage was built with the bindist USE flag enabled
+USE="dist-kernel"
+USE="${USE} -kde -gnome-online-accounts X gtk gnome systemd bluetooth vpx screencast"
+USE="${USE} wayland egl gles2 vulkan opengl"
+USE="${USE} nvidia cuda nvenc vdpau vaapi"
+USE="${USE} pipewire pulseaudio alsa sound-server"
+USE="${USE} ffmpeg gstreamer jpeg png svg webp x264 x265 av1 dav1d"
+USE="${USE} wifi networkmanager zstd"
+USE="${USE} acpi upower udisks usb"
+USE="${USE} introspection policykit dbus udev crypt"
+USE="${USE} opus vorbis flac tiff"
+USE="${USE} lz4 lzo"
+# This sets the language of build output to English.
+# Please keep this setting intact when reporting bugs.
+LC_MESSAGES=C.UTF-8
+
+GENTOO_MIRRORS="https://mirrors.tuna.tsinghua.edu.cn/gentoo \
+    https://mirrors.ustc.edu.cn/gentoo/ \
+    rsync://rsync.mirrors.ustc.edu.cn/gentoo/ \
+    https://mirrors.zju.edu.cn/gentoo/ \
+    http://mirrors.zju.edu.cn/gentoo/ \
+    rsync://mirrors.zju.edu.cn/gentoo/ \
+    https://hk.mirrors.cicku.me/gentoo/ \
+    http://hk.mirrors.cicku.me/gentoo/ \
+    https://hippocamp.cn.ext.planetunix.net/pub/gentoo/ \
+    http://hippocamp.cn.ext.planetunix.net/pub/gentoo/ \
+    ftp://hippocamp.cn.ext.planetunix.net/pub/gentoo/ \
+    rsync://hippocamp.cn.ext.planetunix.net/gentoo/ \
+    https://jp.mirrors.cicku.me/gentoo/ \
+    http://jp.mirrors.cicku.me/gentoo/ \
+    rsync://ftp.iij.ad.jp/pub/linux/gentoo/ \
+    http://ftp.iij.ad.jp/pub/linux/gentoo/ \
+    https://ftp.iij.ad.jp/pub/linux/gentoo/ \
+    ftp://ftp.iij.ad.jp/pub/linux/gentoo/ \
+    https://ftp.jaist.ac.jp/pub/Linux/Gentoo/ \
+    http://ftp.jaist.ac.jp/pub/Linux/Gentoo/ \
+    ftp://ftp.jaist.ac.jp/pub/Linux/Gentoo/ \
+    rsync://ftp.jaist.ac.jp/pub/Linux/Gentoo/ \
+    https://repo.jing.rocks/gentoo \
+    http://repo.jing.rocks/gentoo \
+    rsync://repo.jing.rocks/gentoo \
+    https://kale.jp.ext.planetunix.net/pub/gentoo/ \
+    http://kale.jp.ext.planetunix.net/pub/gentoo/ \
+    ftp://kale.jp.ext.planetunix.net/pub/gentoo/ \
+    rsync://kale.jp.ext.planetunix.net/gentoo/ \
+    https://ftp.riken.jp/Linux/gentoo/ \
+    http://ftp.riken.jp/Linux/gentoo/ \
+    rsync://ftp.riken.jp/gentoo/ \
+    https://sg.mirrors.cicku.me/gentoo/ \
+    http://sg.mirrors.cicku.me/gentoo/ \
+    https://mirror.freedif.org/gentoo \
+    http://mirror.freedif.org/gentoo \
+    rsync://mirror.freedif.org/gentoo \
+    https://enceladus.sg.ext.planetunix.net/pub/gentoo/ \
+    http://enceladus.sg.ext.planetunix.net/pub/gentoo/ \
+    ftp://enceladus.sg.ext.planetunix.net/pub/gentoo/ \
+    rsync://enceladus.sg.ext.planetunix.net/gentoo/ \
+    https://mirrors.mit.edu/gentoo-distfiles/ \
+    http://mirrors.mit.edu/gentoo-distfiles/ \
+    rsync://mirrors.mit.edu/gentoo-distfiles/"
