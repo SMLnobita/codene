@@ -1,0 +1,4 @@
+
+    s.display();
+    cout << "---" << endl;
+  }
