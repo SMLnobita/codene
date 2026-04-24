@@ -23,7 +23,6 @@ typedef struct {
 typedef struct tagNode {
   Student info;
   struct tagNode *pNext;
-  struct tagNode *pPrev; // DSLK kep
 } NODE;
 
 typedef struct {
@@ -38,16 +37,36 @@ void InitList(LIST &l) {
   l.pTail = nullptr;
 }
 
-bool IsEmpty(const LIST &l) { return l.pHead == nullptr; }
-
 // ===================== SO SANH =====================
-// Sap xep tang dan theo GPA.
+// Tang dan theo GPA.
 // Neu GPA bang nhau thi sap xep theo MSSV.
-int CompareStudent(const Student &a, const Student &b) {
+int CompareByGPA(const Student &a, const Student &b) {
   if (a.GPA < b.GPA)
     return -1;
   if (a.GPA > b.GPA)
     return 1;
+  return strcmp(a.studentID, b.studentID);
+}
+
+// Tang dan theo tuoi.
+// Tuoi nho (tre nhat, nam sinh lon) -> len truoc.
+// Tuoi lon (gia nhat, nam sinh nho) -> xuong sau.
+int CompareByAge(const Student &a, const Student &b) {
+  if (a.Birthday.year > b.Birthday.year)
+    return -1;
+  if (a.Birthday.year < b.Birthday.year)
+    return 1;
+
+  if (a.Birthday.month > b.Birthday.month)
+    return -1;
+  if (a.Birthday.month < b.Birthday.month)
+    return 1;
+
+  if (a.Birthday.day > b.Birthday.day)
+    return -1;
+  if (a.Birthday.day < b.Birthday.day)
+    return 1;
+
   return strcmp(a.studentID, b.studentID);
 }
 
@@ -61,21 +80,24 @@ void SwapStudent(Student &a, Student &b) {
 
 NODE *GetNode(const Student &x) {
   NODE *p = new NODE;
+  if (p == nullptr) {
+    cout << "Khong du bo nho de cap phat node!\n";
+    exit(1);
+  }
   p->info = x;
   p->pNext = nullptr;
-  p->pPrev = nullptr;
   return p;
 }
 
 // ===================== THEM NODE =====================
 
-void AddLast(LIST &l, const Student &x) {
-  NODE *p = GetNode(x);
+void AddLast(LIST &l, NODE *p) {
+  if (p == nullptr)
+    return;
 
-  if (IsEmpty(l)) {
+  if (l.pHead == nullptr) {
     l.pHead = l.pTail = p;
   } else {
-    p->pPrev = l.pTail;
     l.pTail->pNext = p;
     l.pTail = p;
   }
@@ -87,47 +109,44 @@ void AppendNode(LIST &l, NODE *p) {
     return;
 
   p->pNext = nullptr;
-  p->pPrev = nullptr;
 
-  if (IsEmpty(l)) {
+  if (l.pHead == nullptr) {
     l.pHead = l.pTail = p;
   } else {
-    p->pPrev = l.pTail;
     l.pTail->pNext = p;
     l.pTail = p;
   }
 }
 
-// Tach 1 node ra khoi list
-void DetachNode(LIST &l, NODE *p) {
+// Tach 1 node ra khoi list. prev = node dung ngay truoc p.
+// Neu p la pHead thi prev = nullptr.
+void DetachNode(LIST &l, NODE *prev, NODE *p) {
   if (p == nullptr)
     return;
 
-  if (p == l.pHead)
+  if (prev == nullptr) {
     l.pHead = p->pNext;
-  if (p == l.pTail)
-    l.pTail = p->pPrev;
-
-  if (p->pPrev != nullptr)
-    p->pPrev->pNext = p->pNext;
-  if (p->pNext != nullptr)
-    p->pNext->pPrev = p->pPrev;
+    if (l.pHead == nullptr)
+      l.pTail = nullptr;
+  } else {
+    prev->pNext = p->pNext;
+    if (p == l.pTail)
+      l.pTail = prev;
+  }
 
   p->pNext = nullptr;
-  p->pPrev = nullptr;
 }
 
 // Noi list b vao cuoi list a
 void ConcatList(LIST &a, LIST &b) {
-  if (IsEmpty(b))
+  if (b.pHead == nullptr)
     return;
 
-  if (IsEmpty(a)) {
+  if (a.pHead == nullptr) {
     a.pHead = b.pHead;
     a.pTail = b.pTail;
   } else {
     a.pTail->pNext = b.pHead;
-    b.pHead->pPrev = a.pTail;
     a.pTail = b.pTail;
   }
 
@@ -168,7 +187,6 @@ void ReadFile(FILE *f, LIST &l) {
   }
 
   char line[256];
-
   while (fgets(line, sizeof(line), f) != nullptr) {
     if (line[0] == '\n' || line[0] == '\r' || line[0] == '\0') {
       continue;
@@ -210,8 +228,10 @@ void ReadFile(FILE *f, LIST &l) {
       continue;
     s.GPA = (float)atof(token);
 
-    AddLast(l, s);
+    AddLast(l, GetNode(s));
   }
+
+  fclose(f);
 }
 
 // ===================== GHI FILE =====================
@@ -227,42 +247,51 @@ void WriteFile(FILE *f, LIST l) {
             (int)p->info.Birthday.day, (int)p->info.Birthday.month,
             p->info.Birthday.year, p->info.GPA);
   }
+
+  fclose(f);
 }
 
 // ====================================================
 // SAP XEP TREN PHAN DATA
 // ====================================================
 
+// Interchange Sort - tang dan theo GPA
 void InterchangeSortLL(LIST &l) {
   for (NODE *p = l.pHead; p != nullptr; p = p->pNext) {
     for (NODE *q = p->pNext; q != nullptr; q = q->pNext) {
-      if (CompareStudent(p->info, q->info) > 0) {
+      if (CompareByGPA(p->info, q->info) > 0) {
         SwapStudent(p->info, q->info);
       }
     }
   }
 }
 
+// Bubble Sort - tang dan theo tuoi
+// List don khong di lui duoc, nen dung bien end de danh dau
+// bien tren cua vung da sap xep (tu end tro di da sorted).
 void BubbleSortLL(LIST &l) {
   if (l.pHead == nullptr || l.pHead == l.pTail)
     return;
 
   bool swapped;
-  NODE *last = nullptr;
+  NODE *end = nullptr;
 
   do {
     swapped = false;
+    NODE *p = l.pHead;
 
-    for (NODE *p = l.pHead; p->pNext != last; p = p->pNext) {
+    while (p->pNext != end) {
       NODE *q = p->pNext;
 
-      if (CompareStudent(p->info, q->info) > 0) {
+      if (CompareByAge(p->info, q->info) > 0) {
         SwapStudent(p->info, q->info);
         swapped = true;
       }
+      p = p->pNext;
     }
 
-    last = (last == nullptr) ? l.pTail : last->pPrev;
+    // Sau luot nay p la phan tu vua day len -> sorted tu p
+    end = p;
 
   } while (swapped);
 }
@@ -271,30 +300,37 @@ void BubbleSortLL(LIST &l) {
 // SAP XEP TREN LINK
 // ====================================================
 
+// Selection Sort - tang dan theo tuoi
 void SelectionSortLL(LIST &l) {
   LIST sorted;
   InitList(sorted);
 
-  while (!IsEmpty(l)) {
+  while (l.pHead != nullptr) {
+    // Tim node min, dong thoi track node dung ngay truoc no
+    // de con tach ra khoi list (vi list don khong di lui).
+    NODE *prevMin = nullptr;
     NODE *minNode = l.pHead;
+    NODE *prev = l.pHead;
 
     for (NODE *p = l.pHead->pNext; p != nullptr; p = p->pNext) {
-      if (CompareStudent(p->info, minNode->info) < 0) {
+      if (CompareByAge(p->info, minNode->info) < 0) {
         minNode = p;
+        prevMin = prev;
       }
+      prev = p;
     }
 
-    DetachNode(l, minNode);
+    DetachNode(l, prevMin, minNode);
     AppendNode(sorted, minNode);
   }
 
   l = sorted;
 }
 
+// Quick Sort - tang dan theo GPA
 LIST QuickSortRec(LIST src) {
   if (src.pHead == nullptr || src.pHead == src.pTail) {
     if (src.pHead != nullptr) {
-      src.pHead->pPrev = nullptr;
       src.pHead->pNext = nullptr;
       src.pTail = src.pHead;
     }
@@ -312,11 +348,9 @@ LIST QuickSortRec(LIST src) {
 
   while (p != nullptr) {
     NODE *next = p->pNext;
-
     p->pNext = nullptr;
-    p->pPrev = nullptr;
 
-    int cmp = CompareStudent(p->info, pivot);
+    int cmp = CompareByGPA(p->info, pivot);
 
     if (cmp < 0) {
       AppendNode(less, p);
@@ -366,55 +400,54 @@ int main() {
   }
 
   ReadFile(f, l);
-  fclose(f);
 
   cout << "DANH SACH BAN DAU:\n";
   PrintList(l);
 
-  cout << "\nChon thuat toan sap xep theo GPA tang dan:\n";
-  cout << "1. Interchange Sort - doi data\n";
-  cout << "2. Bubble Sort      - doi data\n";
-  cout << "3. Selection Sort   - doi link\n";
-  cout << "4. Quick Sort       - doi link\n";
+  cout << "\nChon thuat toan sap xep:\n";
+  cout << "1. Interchange Sort - tang dan GPA  (doi data)\n";
+  cout << "2. Bubble Sort      - tang dan tuoi (doi data)\n";
+  cout << "3. Selection Sort   - tang dan tuoi (doi link)\n";
+  cout << "4. Quick Sort       - tang dan GPA  (doi link)\n";
   cout << "Nhap lua chon: ";
 
   int chon;
   cin >> chon;
 
-  switch (chon) {
-  case 1:
+  const char *filename = nullptr;
+
+  if (chon == 1) {
     InterchangeSortLL(l);
-    break;
-  case 2:
+    filename = "result_interchange.txt";
+  } else if (chon == 2) {
     BubbleSortLL(l);
-    break;
-  case 3:
+    filename = "result_bubble.txt";
+  } else if (chon == 3) {
     SelectionSortLL(l);
-    break;
-  case 4:
+    filename = "result_selection.txt";
+  } else if (chon == 4) {
     QuickSortLL(l);
-    break;
-  default:
+    filename = "result_quicksort.txt";
+  } else {
     cout << "Lua chon khong hop le, mac dinh dung Quick Sort.\n";
     QuickSortLL(l);
-    break;
+    filename = "result_quicksort.txt";
   }
 
   cout << "\nDANH SACH SAU KHI SAP XEP:\n";
   PrintList(l);
 
-  f = fopen("data_sorted.txt", "w");
+  f = fopen(filename, "w");
 
   if (f == nullptr) {
-    cout << "Khong mo duoc file data_sorted.txt de ghi.\n";
+    cout << "Khong mo duoc file " << filename << " de ghi.\n";
     RemoveList(l);
     return 1;
   }
 
   WriteFile(f, l);
-  fclose(f);
 
-  cout << "\nDa ghi ket qua vao file data_sorted.txt\n";
+  cout << "\nDa ghi ket qua vao file " << filename << "\n";
 
   RemoveList(l);
   return 0;

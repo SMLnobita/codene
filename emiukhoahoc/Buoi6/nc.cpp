@@ -1,13 +1,11 @@
-#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 using namespace std;
-
-// ===================== STRUCT =====================
 
 struct birth {
   unsigned char day;
@@ -25,7 +23,6 @@ typedef struct {
 typedef struct tagNode {
   Student info;
   struct tagNode *pNext;
-  struct tagNode *pPrev;
 } NODE;
 
 typedef struct {
@@ -35,51 +32,61 @@ typedef struct {
 
 // ===================== KHOI TAO =====================
 
-void banDau(LIST &myList) {
-  myList.pHead = nullptr;
-  myList.pTail = nullptr;
+void InitList(LIST &l) {
+  l.pHead = nullptr;
+  l.pTail = nullptr;
 }
 
-bool IsEmpty(const LIST &myList) { return myList.pHead == nullptr; }
+// ===================== SO SANH =====================
+// Tang dan theo GPA.
+// Neu GPA bang nhau thi sap xep theo MSSV.
+int CompareByGPA(const Student &a, const Student &b) {
+  if (a.GPA < b.GPA)
+    return -1;
+  if (a.GPA > b.GPA)
+    return 1;
+  return strcmp(a.studentID, b.studentID);
+}
 
 // ===================== TAO NODE =====================
 
-NODE *GetNode(const Student &value) {
-  NODE *newNode = new NODE;
-  newNode->info = value;
-  newNode->pNext = nullptr;
-  newNode->pPrev = nullptr;
-  return newNode;
+NODE *GetNode(const Student &x) {
+  NODE *p = new NODE;
+  if (p == nullptr) {
+    cout << "Khong du bo nho de cap phat node!\n";
+    exit(1);
+  }
+  p->info = x;
+  p->pNext = nullptr;
+  return p;
 }
 
 // ===================== THEM NODE =====================
 
-void AddLast(LIST &myList, const Student &value) {
-  NODE *newNode = GetNode(value);
+void AddLast(LIST &l, NODE *p) {
+  if (p == nullptr)
+    return;
 
-  if (myList.pHead == nullptr) {
-    myList.pHead = myList.pTail = newNode;
+  if (l.pHead == nullptr) {
+    l.pHead = l.pTail = p;
   } else {
-    newNode->pPrev = myList.pTail;
-    myList.pTail->pNext = newNode;
-    myList.pTail = newNode;
+    l.pTail->pNext = p;
+    l.pTail = p;
   }
 }
 
 // Them node co san vao cuoi list, khong cap phat node moi
-void AppendNode(LIST &myList, NODE *p) {
+void AppendNode(LIST &l, NODE *p) {
   if (p == nullptr)
     return;
 
   p->pNext = nullptr;
-  p->pPrev = nullptr;
 
-  if (myList.pHead == nullptr) {
-    myList.pHead = myList.pTail = p;
+  if (l.pHead == nullptr) {
+    l.pHead = l.pTail = p;
   } else {
-    p->pPrev = myList.pTail;
-    myList.pTail->pNext = p;
-    myList.pTail = p;
+    l.pTail->pNext = p;
+    l.pTail = p;
   }
 }
 
@@ -93,40 +100,11 @@ void ConcatList(LIST &a, LIST &b) {
     a.pTail = b.pTail;
   } else {
     a.pTail->pNext = b.pHead;
-    b.pHead->pPrev = a.pTail;
     a.pTail = b.pTail;
   }
 
   b.pHead = nullptr;
   b.pTail = nullptr;
-}
-
-// Cap nhat lai pTail sau khi da thay doi pHead
-void UpdateTail(LIST &myList) {
-  myList.pTail = myList.pHead;
-
-  if (myList.pTail == nullptr)
-    return;
-
-  while (myList.pTail->pNext != nullptr) {
-    myList.pTail = myList.pTail->pNext;
-  }
-}
-
-// ===================== SO SANH =====================
-
-int CompareGPA(const Student &a, const Student &b) {
-  if (a.GPA < b.GPA)
-    return -1;
-  if (a.GPA > b.GPA)
-    return 1;
-
-  // Neu GPA bang nhau thi xep theo MSSV
-  return strcmp(a.studentID, b.studentID);
-}
-
-int CompareID(const Student &a, const Student &b) {
-  return strcmp(a.studentID, b.studentID);
 }
 
 // ===================== IN DANH SACH =====================
@@ -137,28 +115,25 @@ void PrintStudent(const Student &s) {
 
   cout << right << setfill('0') << setw(2) << (int)s.Birthday.day << "/"
        << setw(2) << (int)s.Birthday.month << "/" << s.Birthday.year
-       << setfill(' ') << left << "\n";
+       << setfill(' ') << left << '\n';
 }
 
-void PrintList(const LIST &myList) {
+void PrintList(const LIST &l) {
   cout << left << setw(12) << "MSSV" << setw(26) << "Ho ten" << setw(8) << "GPA"
        << "Ngay sinh\n";
 
-  cout << string(58, '-') << "\n";
+  cout << string(58, '-') << '\n';
 
-  NODE *p = myList.pHead;
-
-  while (p != nullptr) {
+  for (NODE *p = l.pHead; p != nullptr; p = p->pNext) {
     PrintStudent(p->info);
-    p = p->pNext;
   }
 }
 
 // ===================== DOC FILE =====================
-// Dinh dang file data.txt:
+// Dinh dang data.txt:
 // 23200085,Nguyen Tran Qui Hoa,24/06/2005,8.5
 
-void ReadFile(FILE *f, LIST &myList) {
+void ReadFile(FILE *f, LIST &l) {
   if (f == nullptr) {
     cout << "File khong hop le.\n";
     return;
@@ -172,21 +147,18 @@ void ReadFile(FILE *f, LIST &myList) {
     }
 
     Student s{};
-    int day = 0;
-    int month = 0;
+    int day = 0, month = 0;
     unsigned int year = 0;
 
     char *token = strtok(line, ",\r\n");
     if (token == nullptr)
       continue;
-
     strncpy(s.studentID, token, sizeof(s.studentID) - 1);
     s.studentID[sizeof(s.studentID) - 1] = '\0';
 
     token = strtok(nullptr, ",\r\n");
     if (token == nullptr)
       continue;
-
     strncpy(s.name, token, sizeof(s.name) - 1);
     s.name[sizeof(s.name) - 1] = '\0';
 
@@ -208,233 +180,169 @@ void ReadFile(FILE *f, LIST &myList) {
     token = strtok(nullptr, ",\r\n");
     if (token == nullptr)
       continue;
-
     s.GPA = (float)atof(token);
 
-    AddLast(myList, s);
+    AddLast(l, GetNode(s));
   }
+
+  fclose(f);
 }
 
 // ===================== GHI FILE =====================
 
-void WriteFile(FILE *f, LIST myList) {
+void WriteFile(FILE *f, LIST l) {
   if (f == nullptr) {
     cout << "File khong hop le.\n";
     return;
   }
 
-  NODE *p = myList.pHead;
-
-  while (p != nullptr) {
+  for (NODE *p = l.pHead; p != nullptr; p = p->pNext) {
     fprintf(f, "%s,%s,%02d/%02d/%u,%.1f\n", p->info.studentID, p->info.name,
             (int)p->info.Birthday.day, (int)p->info.Birthday.month,
             p->info.Birthday.year, p->info.GPA);
-
-    p = p->pNext;
   }
+
+  fclose(f);
 }
 
 // ====================================================
-// CAU 1 NANG CAO:
-// Sap xep diem tang dan bang Merge Sort tren lien ket
+// 1. MERGE SORT - tang dan GPA (doi link)
 // ====================================================
 
-// Tach danh sach thanh 2 nua
-NODE *SplitList(NODE *head) {
-  if (head == nullptr || head->pNext == nullptr) {
+// Tim node o giua cua list dung slow/fast pointer
+NODE *GetMiddle(NODE *head) {
+  if (head == nullptr)
     return nullptr;
-  }
 
   NODE *slow = head;
-  NODE *fast = head;
+  NODE *fast = head->pNext;
 
-  while (fast->pNext != nullptr && fast->pNext->pNext != nullptr) {
+  while (fast != nullptr && fast->pNext != nullptr) {
     slow = slow->pNext;
     fast = fast->pNext->pNext;
   }
 
-  NODE *second = slow->pNext;
-  slow->pNext = nullptr;
-
-  if (second != nullptr) {
-    second->pPrev = nullptr;
-  }
-
-  return second;
+  return slow;
 }
 
-// Tron 2 danh sach da sap xep theo GPA
-NODE *MergeByGPA(NODE *a, NODE *b) {
-  if (a == nullptr)
-    return b;
-  if (b == nullptr)
-    return a;
+// Tron 2 list da sap xep tang dan theo GPA thanh 1 list da sap xep
+LIST Merge(LIST a, LIST b) {
+  LIST result;
+  InitList(result);
 
-  NODE *head = nullptr;
-  NODE *tail = nullptr;
+  while (a.pHead != nullptr && b.pHead != nullptr) {
+    NODE *p;
 
-  while (a != nullptr && b != nullptr) {
-    NODE *chosen = nullptr;
-
-    if (CompareGPA(a->info, b->info) <= 0) {
-      chosen = a;
-      a = a->pNext;
+    if (CompareByGPA(a.pHead->info, b.pHead->info) <= 0) {
+      p = a.pHead;
+      a.pHead = p->pNext;
+      if (a.pHead == nullptr)
+        a.pTail = nullptr;
     } else {
-      chosen = b;
-      b = b->pNext;
+      p = b.pHead;
+      b.pHead = p->pNext;
+      if (b.pHead == nullptr)
+        b.pTail = nullptr;
     }
 
-    chosen->pNext = nullptr;
-    chosen->pPrev = nullptr;
-
-    if (head == nullptr) {
-      head = tail = chosen;
-    } else {
-      tail->pNext = chosen;
-      chosen->pPrev = tail;
-      tail = chosen;
-    }
+    p->pNext = nullptr;
+    AppendNode(result, p);
   }
 
-  NODE *remain = (a != nullptr) ? a : b;
+  // Noi phan con lai (1 trong 2 list co the con node)
+  ConcatList(result, a);
+  ConcatList(result, b);
 
-  while (remain != nullptr) {
-    NODE *next = remain->pNext;
+  return result;
+}
 
-    remain->pNext = nullptr;
-    remain->pPrev = nullptr;
-
-    if (head == nullptr) {
-      head = tail = remain;
-    } else {
-      tail->pNext = remain;
-      remain->pPrev = tail;
-      tail = remain;
-    }
-
-    remain = next;
+// Ham de quy: chia doi, sort 2 nua, tron lai
+LIST MergeSortRec(LIST src) {
+  if (src.pHead == nullptr || src.pHead == src.pTail) {
+    return src;
   }
 
-  return head;
+  NODE *mid = GetMiddle(src.pHead);
+
+  LIST left, right;
+  InitList(left);
+  InitList(right);
+
+  left.pHead = src.pHead;
+  left.pTail = mid;
+  right.pHead = mid->pNext;
+  right.pTail = src.pTail;
+  mid->pNext = nullptr;
+
+  left = MergeSortRec(left);
+  right = MergeSortRec(right);
+
+  return Merge(left, right);
 }
 
-// De quy Merge Sort
-NODE *MergeSortNode(NODE *head) {
-  if (head == nullptr || head->pNext == nullptr) {
-    if (head != nullptr) {
-      head->pPrev = nullptr;
-    }
-    return head;
-  }
-
-  NODE *second = SplitList(head);
-
-  head = MergeSortNode(head);
-  second = MergeSortNode(second);
-
-  return MergeByGPA(head, second);
-}
-
-void MergeSortLL(LIST &myList) {
-  myList.pHead = MergeSortNode(myList.pHead);
-  UpdateTail(myList);
-}
+void MergeSortLL(LIST &l) { l = MergeSortRec(l); }
 
 // ====================================================
-// CAU 2 NANG CAO:
-// Sap xep sinh vien theo ID tang dan bang Radix Sort
-// tren phan lien ket
+// 2. RADIX SORT - tang dan MSSV (doi link)
 // ====================================================
 
-int MaxIDLength(const LIST &myList) {
-  int maxLen = 0;
+// Gia su tat ca MSSV co cung do dai, chi gom cac ky tu '0'-'9'.
+// LSD Radix Sort: duyet tu chu so phai sang trai,
+// moi luot phan phoi vao 10 bucket roi gom lai.
+void RadixSortLL(LIST &l) {
+  if (l.pHead == nullptr || l.pHead == l.pTail)
+    return;
 
-  NODE *p = myList.pHead;
+  const int BUCKET_COUNT = 10;
+  int len = (int)strlen(l.pHead->info.studentID);
 
-  while (p != nullptr) {
-    int len = strlen(p->info.studentID);
+  LIST bucket[BUCKET_COUNT];
 
-    if (len > maxLen) {
-      maxLen = len;
+  for (int pos = len - 1; pos >= 0; pos--) {
+    for (int i = 0; i < BUCKET_COUNT; i++) {
+      InitList(bucket[i]);
     }
 
-    p = p->pNext;
-  }
-
-  return maxLen;
-}
-
-// Lay chu so cua MSSV tu phai sang trai
-// pos = 0: hang don vi
-// pos = 1: hang chuc
-// pos = 2: hang tram
-int GetDigitFromRight(const char id[], int pos) {
-  int len = strlen(id);
-  int index = len - 1 - pos;
-
-  if (index < 0) {
-    return 0;
-  }
-
-  if (isdigit((unsigned char)id[index])) {
-    return id[index] - '0';
-  }
-
-  return 0;
-}
-
-void RadixSortIDLL(LIST &myList) {
-  int maxLen = MaxIDLength(myList);
-
-  for (int pos = 0; pos < maxLen; pos++) {
-    LIST bucket[10];
-
-    for (int i = 0; i < 10; i++) {
-      banDau(bucket[i]);
-    }
-
-    NODE *p = myList.pHead;
-
-    // Tach het node cua myList dua vao cac bucket
-    while (p != nullptr) {
-      NODE *next = p->pNext;
-
+    // Phan phoi tung node vao bucket tuong ung voi chu so tai vi tri pos
+    while (l.pHead != nullptr) {
+      NODE *p = l.pHead;
+      l.pHead = p->pNext;
+      if (l.pHead == nullptr)
+        l.pTail = nullptr;
       p->pNext = nullptr;
-      p->pPrev = nullptr;
 
-      int digit = GetDigitFromRight(p->info.studentID, pos);
+      char c = p->info.studentID[pos];
+      int digit = 0;
+      if (c >= '0' && c <= '9')
+        digit = c - '0';
 
       AppendNode(bucket[digit], p);
-
-      p = next;
     }
 
-    banDau(myList);
-
-    // Noi bucket 0 -> 9 lai thanh danh sach moi
-    for (int i = 0; i < 10; i++) {
-      ConcatList(myList, bucket[i]);
+    // Gom cac bucket lai theo thu tu 0 -> 9
+    for (int i = 0; i < BUCKET_COUNT; i++) {
+      ConcatList(l, bucket[i]);
     }
   }
 }
 
 // ===================== XOA DANH SACH =====================
 
-void removeList(LIST &myList) {
-  while (myList.pHead != nullptr) {
-    NODE *p = myList.pHead;
-    myList.pHead = myList.pHead->pNext;
+void RemoveList(LIST &l) {
+  while (l.pHead != nullptr) {
+    NODE *p = l.pHead;
+    l.pHead = l.pHead->pNext;
     delete p;
   }
 
-  myList.pTail = nullptr;
+  l.pTail = nullptr;
 }
 
 // ===================== MAIN =====================
 
 int main() {
-  LIST myList;
-  banDau(myList);
+  LIST l;
+  InitList(l);
 
   FILE *f = fopen("data.txt", "r");
 
@@ -443,50 +351,48 @@ int main() {
     return 1;
   }
 
-  ReadFile(f, myList);
-  fclose(f);
+  ReadFile(f, l);
 
   cout << "DANH SACH BAN DAU:\n";
-  PrintList(myList);
+  PrintList(l);
 
-  cout << "\n===== MENU =====\n";
-  cout << "1. Cau 1 nang cao: Merge Sort diem GPA tang dan tren lien ket\n";
-  cout << "2. Cau 2 nang cao: Radix Sort ID tang dan tren lien ket\n";
+  cout << "\nChon thuat toan sap xep (bai tap nang cao):\n";
+  cout << "1. Merge Sort - tang dan GPA  (doi link)\n";
+  cout << "2. Radix Sort - tang dan MSSV (doi link)\n";
   cout << "Nhap lua chon: ";
 
   int chon;
   cin >> chon;
 
+  const char *filename = nullptr;
+
   if (chon == 1) {
-    MergeSortLL(myList);
-
-    cout << "\nDANH SACH SAU KHI MERGE SORT THEO GPA TANG DAN:\n";
-    PrintList(myList);
+    MergeSortLL(l);
+    filename = "result_merge.txt";
   } else if (chon == 2) {
-    RadixSortIDLL(myList);
-
-    cout << "\nDANH SACH SAU KHI RADIX SORT THEO ID TANG DAN:\n";
-    PrintList(myList);
+    RadixSortLL(l);
+    filename = "result_radix.txt";
   } else {
-    cout << "Lua chon khong hop le.\n";
-    removeList(myList);
-    return 0;
+    cout << "Lua chon khong hop le, mac dinh dung Merge Sort.\n";
+    MergeSortLL(l);
+    filename = "result_merge.txt";
   }
 
-  f = fopen("data_sorted.txt", "w");
+  cout << "\nDANH SACH SAU KHI SAP XEP:\n";
+  PrintList(l);
+
+  f = fopen(filename, "w");
 
   if (f == nullptr) {
-    cout << "Khong mo duoc file data_sorted.txt de ghi.\n";
-    removeList(myList);
+    cout << "Khong mo duoc file " << filename << " de ghi.\n";
+    RemoveList(l);
     return 1;
   }
 
-  WriteFile(f, myList);
-  fclose(f);
+  WriteFile(f, l);
 
-  cout << "\nDa ghi ket qua vao file data_sorted.txt\n";
+  cout << "\nDa ghi ket qua vao file " << filename << "\n";
 
-  removeList(myList);
-
+  RemoveList(l);
   return 0;
 }
