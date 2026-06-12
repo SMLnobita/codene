@@ -1,0 +1,6 @@
+2320007,Nguyen Huu Duc,9.20,20,11,2005
+2320008,Dinh Tien Dung,5.20,19,12,2005
+2320018,Pham An Khang,8.90,30,4,2006
+2320033,Nguyen Anh Tuan,10.00,12,8,2005
+2320081,Nguyen Nhat Hao,9.00,2,1,2004
+2320085,Nguyen Tran Qui Hoa,8.50,15,5,2005

@@ -1,0 +1,5 @@
+SV001,Nguyen Van A,8.50,15,5,2005
+SV002,Tran Thi B,7.20,20,11,2005
+SV003,Le Hoang Cuong,9.00,2,1,2004
+SV004,Pham Minh Duc,6.80,12,8,2005
+SV005,Hoang Khanh Linh,8.90,30,4,2006
