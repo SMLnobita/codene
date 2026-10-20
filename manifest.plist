@@ -17,13 +17,13 @@
                     <key>kind</key>
                     <string>display-image</string>
                     <key>url</key>
-                    <string>https://dn710205.ca.archive.org/0/items/cydia-icon/CydiaIcon.png</string>
+                    <string>https://raw.githubusercontent.com/SMLnobita/codene/refs/heads/main/CydiaIcon.png</string>
                 </dict>
                 <dict>
                     <key>kind</key>
                     <string>full-size-image</string>
                     <key>url</key>
-                    <string>https://dn710205.ca.archive.org/0/items/cydia-icon/CydiaIcon.png</string>
+                    <string>https://raw.githubusercontent.com/SMLnobita/codene/refs/heads/main/CydiaIcon.png</string>
                 </dict>
             </array>
             <key>metadata</key>
